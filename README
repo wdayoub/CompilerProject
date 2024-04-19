@@ -1,11 +1,4 @@
-*************************************************
-  Checkpoint 3
-  Student Names: Wisam Dayoub, Sam Engel, Affan Khan
-  Course Name: CIS 4650
-  Due Date: April 4th, 2023
 
-  Based on starter code created by Fei Song
-**************************************************
 
   To build the parser, type "make" in the current directory, which will 
 generate an executable program called "CM".

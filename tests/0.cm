@@ -1,0 +1,28 @@
+/* line 9 has a lexical error due to the $ sign
+ Line 10 has an error due to the variable missing
+ Line 11 has an error due to initializing and declaring on the same line.    
+ Line 12 has an error due to an invalid conditional statement.
+ */
+int main(void) {
+  int x; 
+  int fac;
+  int $;
+  int  = 10;
+  int x = 8;
+  while ( 3 + 5*) {
+
+  }
+
+  if(x = 4){
+    x = 5;
+  }
+
+  x = input();
+  fac = 1;
+  while (fac=1) {
+    fac = fac * x;
+    x = x + 1;
+  } 
+
+ return (fac);
+}

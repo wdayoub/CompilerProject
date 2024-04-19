@@ -1,0 +1,7 @@
+The symbol table is:
+Entering the global scope:
+        Entering the scope for function main:
+    Leaving the function scope
+    lol: int[]
+    main: void function
+Leaving the global scope

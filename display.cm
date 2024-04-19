@@ -1,0 +1,23 @@
+/* A program to test symbol table with code similar to Lecture 8 */
+
+int i;
+int j;
+
+int f(int size){
+    int i;
+    int temp;
+    bool what;
+
+    what = false;
+
+    temp = 3;
+
+    if (size == 1){
+        int j;
+    }
+
+    if (size == 2){
+        int j;
+    }
+
+}

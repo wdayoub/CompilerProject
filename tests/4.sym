@@ -1,0 +1,21 @@
+The symbol table is:
+Entering the global scope:
+    Entering the scope for function main:
+        Type Error: One side of the assignment at line 6 is of unknown type.
+Type Error: One side of the assignment at line 7 is of unknown type.
+        Entering a new block:
+        Leaving the block
+        x: int
+        y: int[]
+        cm: bool
+        anotherBool: bool
+    Leaving the function scope
+    Entering the scope for function fun:
+Type Error: One side of the assignment at line 17 is of unknown type.
+        fff: int
+        x: int
+        y: int
+    Leaving the function scope
+    main: void function
+    fun: int function
+Leaving the global scope

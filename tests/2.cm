@@ -1,0 +1,12 @@
+/*no errors in this test*/
+void main (void){
+int yes;
+int no;
+
+no = 2;
+
+while (yes > 2){
+no = no * yes + 1;
+yes = yes - 1;
+}
+}

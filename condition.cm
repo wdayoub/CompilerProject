@@ -1,0 +1,9 @@
+void main(void){
+    bool what;
+    what = false;
+
+    if (what == false){
+        int x;
+        x = 2;
+    }
+}

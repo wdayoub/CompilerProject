@@ -1,0 +1,8 @@
+The symbol table is:
+Entering the global scope:
+    Entering the scope for function main:
+Type Error: One side of the assignment at line 5 is of unknown type.
+        hw: int
+    Leaving the function scope
+    main: void function
+Leaving the global scope

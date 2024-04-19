@@ -1,0 +1,21 @@
+/* 
+ invalid array index on line 19 for passing void call exp fac() as the array index and line 20 should produce an error for incompatible types
+ */
+int input(void);
+void output(int x);
+void fac(void);
+
+int niceFunc(int cool, int notCool) {
+  if (notCool == 0) return cool;
+  else return niceFunc(notCool, cool - cool*cool + notCool);
+}
+void main(void) {
+  int a;
+  int arr[13];  
+  int check;
+  bool yes;
+
+  a = input();
+  arr[fac()] = 2;
+  output((check + a)/yes);
+}

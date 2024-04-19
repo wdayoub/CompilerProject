@@ -1,0 +1,15 @@
+/*lexical error on line 4 b/c "i nt a;" is not a valid type specifier and syntactic error on line 13, can't be declared after a statement*/
+void main(void){
+    int fac;
+    i nt a;
+    int foo;
+    
+    fac = input();
+    foo = 1;
+    while (fac>2){
+        foo = foo * fac;
+        fac = fac - 1;
+    }
+    int fac;
+    output (foo);
+}

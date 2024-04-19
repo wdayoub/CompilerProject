@@ -1,0 +1,396 @@
+/* Checkpoint 2
+  Student Names: Wisam Dayoub, Sam Engel, Affan Khan
+  Course Name: CIS 4650
+  Due Date: March 18th, 2023
+
+  Based on starter code created by Fei Song
+  File Name: cspec.cup
+*/
+   
+   
+/* ----------------------Preliminary Declarations Section--------------------*/
+   
+import absyn.*;
+import java.util.*;
+import java.io.*;
+   
+/* Parser code to change the way the parser reports errors (include
+   line and column number of the error). */
+parser code {:
+    
+    /* Change the method report_error so it will display the line and
+       column of where the error occurred in the input as well as the
+       reason for the error which is passed into the method in the
+       String 'message'. */
+    public void report_error(String message, Object info) {
+      valid = false; /* If an error is dectected, then set boolean to false */
+
+        /* Create a StringBuffer called 'm' with the string 'Error' in it. */
+        StringBuffer m = new StringBuffer("Error");
+   
+        /* Check if the information passed to the method is the same
+           type as the type java_cup.runtime.Symbol. */
+        if (info instanceof java_cup.runtime.Symbol) {
+            /* Declare a java_cup.runtime.Symbol object 's' with the
+               information in the object info that is being typecasted
+               as a java_cup.runtime.Symbol object. */
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            /* Check if the line number in the input is greater or
+               equal to zero. */
+            if (s.left >= 0) {                
+                /* Add to the end of the StringBuffer error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));   
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)                    
+                    /* Add to the end of the StringBuffer error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        /* Add to the end of the StringBuffer error message created in
+           this method the message that was passed into this method. */
+        m.append(" : "+message);
+   
+        /* Print the contents of the StringBuffer 'm', which contains
+           an error message, out on a line. */
+        System.err.println(m);
+    }
+   
+    /* Change the method report_fatal_error so when it reports a fatal
+       error it will display the line and column number of where the
+       fatal error occurred in the input as well as the reason for the
+       fatal error which is passed into the method in the object
+       'message' and then exit.*/
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+    /* Assume true at the start, but set to false with parsing errors */
+    public static boolean valid = true;
+
+:};
+   
+   
+/* ------------Declaration of Terminals and Non Terminals Section----------- */
+   
+terminal Integer BOOL, INT, VOID; 
+terminal ELSE, IF, RETURN, WHILE; 
+terminal PLUS, MINUS, TIMES, DIVIDE;
+terminal LT, LTE, GT, GTE, EQ, NEQ;
+terminal BITNOT;
+terminal OR, AND;
+terminal ASSIGN, SEMI, COMMA;
+terminal LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE;
+terminal String ID, NUM, TRUTH;
+terminal ERROR;
+
+non terminal DecList program, declaration_list; 
+non terminal Dec declaration; 
+non terminal VarDec var_declaration; 
+non terminal VarDecList local_declarations;
+non terminal NameTy type_specifier;
+non terminal Dec fun_declaration, fun_prototype;
+non terminal VarDecList params, param_list;
+non terminal VarDec param;
+non terminal ExpList stmt_list; 
+non terminal Exp compound_stmt, stmt, expr_stmt, selection_stmt, iteration_stmt, return_stmt;
+non terminal VarExp var;
+non terminal Exp expr;
+non terminal ExpList args, arg_list; 
+
+precedence left OR;
+precedence left AND;
+precedence nonassoc EQ, NEQ;
+precedence nonassoc LT, LTE, GT, GTE;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+
+/* ----------------------------Grammar Section-------------------- */
+   
+start with program;
+
+
+program	              ::= declaration_list:dl
+                          {: RESULT = dl; :}
+                        ;
+
+declaration_list	     ::= declaration_list:dl declaration:d
+                          {: DecList t = dl;
+                              while( t.tail != null )
+                                t = t.tail;
+                              t.tail = new DecList(d, null);
+                              RESULT = dl;
+                          :}
+                        | declaration:d1
+                        {: RESULT = new DecList(d1, null); :}
+                        ;
+
+declaration	            ::= var_declaration:vd
+                        {: RESULT = vd; :}
+                        | fun_declaration:fd
+                        {: RESULT = fd; :}
+                        | fun_prototype:fp
+                        {: RESULT = fp; :}
+                        ;
+
+
+
+var_declaration	      ::= type_specifier:t ID:name SEMI
+                        {: RESULT = new SimpleDec(tleft, tright, t, name); :}
+                        | type_specifier:t ID:name LBRACKET NUM:n RBRACKET SEMI
+                        {: RESULT = new ArrayDec(tleft, tright, t, name, Integer.parseInt(n)); :}
+                        | type_specifier:t ID:name LBRACKET error:e SEMI
+                        {: parser.report_error("Invalid array declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": missing array size.", e);
+                            RESULT = new SimpleDec(tleft, tright, t, null);
+                        :}
+                        | type_specifier:t ID:name LBRACKET NUM:n error:e SEMI
+                        {: parser.report_error("Invalid array declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": missing right bracket.", e);
+                            RESULT = new SimpleDec(tleft, tright, t, null);
+                        :}
+                        | type_specifier:t ID:name error:e RBRACKET
+                        {: parser.report_error("Invalid array declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": missing left bracket.", e);
+                            RESULT = new SimpleDec(tleft, tright, t, null);
+                        :}
+                        | type_specifier:t ID:name error:e SEMI
+                        {: parser.report_error("Invalid variable declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": unexpected argument before semicolon.", e);
+                            RESULT = new SimpleDec(tleft, tright, t, null);
+                        :}
+                        | type_specifier:t error:e SEMI
+                        {: parser.report_error("Invalid variable declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": invalid variable name", e);
+                            RESULT = new SimpleDec(tleft, tright, t, null);
+                        :}
+                        | error:e SEMI
+                        {: parser.report_error("Invalid variable declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": type not of (bool, void, int) or invalid naming convention.", e);
+                         RESULT = new SimpleDec(eleft, 0, new NameTy(eleft, 0, 0), null);
+                           :}
+                        ;
+
+
+
+type_specifier	         ::= BOOL:b
+                            {: RESULT = new NameTy(bleft, bright, 0);:}
+                             | INT:b 
+                             {: RESULT = new NameTy(bleft, bright, 1);:}
+                             | VOID:b
+                            {: RESULT = new NameTy(bleft, bright, 2);:}
+                          ;
+
+
+/*fun_declaration         ::= type_specifier:t ID:name LPAREN params:p RPAREN compound_stmt:body
+                          {: RESULT = new FunctionDec(tleft, tright, t, name, p, body); :}
+                          ;*/
+
+fun_declaration         ::= type_specifier:t ID:name LPAREN params:p RPAREN compound_stmt:body
+                        {: RESULT = new FunctionDec(tleft, tright, t, name, p, body); :}
+                     | type_specifier:t ID:name LPAREN error:e compound_stmt:body
+                        {: parser.report_error("Invalid function declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": incorrect parameters (MUST HAVE void for empty parameters).", e);
+                           RESULT = new FunctionDec(tleft, tright, t, name, null, body);
+                        :}
+                     | type_specifier:t ID:name error:e compound_stmt:body
+                        {: parser.report_error("Invalid function declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": missing left parenthesis.", e);
+                           RESULT = new FunctionDec(tleft, tright, t, name, null, body);
+                        :}
+                     | type_specifier:t ID:name LPAREN params:p error:e compound_stmt:body
+                        {: parser.report_error("Invalid function declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": missing right parenthesis.", e);
+                           RESULT = new FunctionDec(tleft, tright, t, name, null, body);
+                        :}
+                     | type_specifier:t error:e compound_stmt:body
+                        {: parser.report_error("Invalid function declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": missing function name.", e);
+                           RESULT = new FunctionDec(tleft, tright, t, null, null, body);
+                        :}
+                     | error:e ID:name LPAREN RPAREN compound_stmt:body
+                        {: parser.report_error("Invalid function declaration in line " + (eleft + 1) + ", column " + (eright + 1) + ": missing function type.", e);
+                           RESULT = new FunctionDec(eleft, 0, new NameTy(eleft, 0, 0), name, null, body);
+                        :}
+                     ;
+
+fun_prototype           ::= type_specifier:t ID:name LPAREN params:p RPAREN SEMI
+                          {: RESULT = new FunctionPro(tleft, tright, t, name, p); :};
+
+params                  ::= param_list:pl
+                            {: RESULT = pl; :}
+                           | VOID
+                            {: RESULT = null; :};
+
+param_list              ::= param_list:pl COMMA param:p 
+                            {: VarDecList t = pl;
+                                while( t.tail != null )
+                                  t = t.tail;
+                                t.tail = new VarDecList(p, null);
+                                RESULT = pl;
+                            :}
+                            | param:p
+                            {:RESULT = new VarDecList(p, null);:}
+                            ;
+
+param                   ::= type_specifier:type ID:name
+                              {:RESULT = new SimpleDec(typeleft, typeright, type, name);:}
+                            | type_specifier:type ID:name LBRACKET RBRACKET
+                              {:RESULT = new ArrayDec(typeleft, typeright, type, name, 0);:}
+                            ;
+
+compound_stmt           ::= LBRACE local_declarations:decs stmt_list:exps RBRACE
+                            {: RESULT = new CompoundExp(decsleft, decsright, decs, exps); :}
+                            ;
+
+local_declarations      ::= local_declarations:ld var_declaration:vd
+                           {: VarDecList t = ld;
+                              while( t.tail != null )
+                                 t = t.tail;
+                              t.tail = new VarDecList(vd, null);
+                              RESULT = ld;
+                           :}
+                           | 
+                           {:RESULT = new VarDecList(null,null);:}
+                           ;
+
+stmt_list               ::= stmt_list:s1 stmt:s2
+                           {: ExpList t = s1;
+                              while( t.tail != null )
+                                 t = t.tail;
+                              t.tail = new ExpList(s2, null);
+                              RESULT = s1;
+                           :}
+                          | {: RESULT = new ExpList(null, null); :}
+                          ;
+
+stmt                    ::= expr_stmt:e         {: RESULT = e;:}
+                           | compound_stmt:c     {:RESULT = c;:}
+                           | selection_stmt:s    {:RESULT = s;:}
+                           | iteration_stmt:i    {: RESULT = i;:}
+                           | return_stmt:r        {: RESULT = r;:}      
+                           ;          
+
+expr_stmt               ::= expr:e SEMI         {:RESULT = e;:}
+                            | SEMI:s            {:RESULT = new NilExp(sleft, sright);:}
+                           ; 
+
+
+
+selection_stmt          ::= IF:i LPAREN expr:e RPAREN stmt:s
+                        {: RESULT = new IfExp(ileft, iright, e, s, new NilExp(ileft, iright)); :}
+                     | IF:i LPAREN expr:e RPAREN stmt:s1 ELSE stmt:s2
+                        {: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
+                     | IF:i LPAREN error:e expr:exp RPAREN stmt:s1 ELSE stmt:s2
+                        {: parser.report_error("Invalid if stmt in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid syntax after '('.\n", e); 
+                        RESULT = new IfExp(ileft, iright, exp, s1, s2);
+                        :}
+                     | IF:i LPAREN error:e RPAREN stmt:s1 ELSE stmt:s2
+                        {: parser.report_error("Invalid if statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid conditional statement.\n", e); 
+                        RESULT = new IfExp(ileft, iright, null, s1, s2);
+                        :}
+                     | IF:i LPAREN expr:exp RPAREN error:e stmt:s1 ELSE stmt:s2
+                        {: parser.report_error("Invalid if statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid syntax after ')'.\n", e); 
+                           RESULT = new IfExp(ileft, iright, exp, s1, s2);
+                        :}
+                     | IF:i LPAREN expr:exp RPAREN stmt:s1 ELSE error:e stmt:s2
+                        {: parser.report_error("Invalid if statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid syntax after else.\n", e); 
+                           RESULT = new IfExp(ileft, iright, exp, s1, s2);
+                        :}
+                     | IF:i LPAREN error:e RPAREN stmt:s
+                        {: parser.report_error("Invalid if statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid conditional statement.\n", e); 
+                           RESULT = new IfExp(ileft, iright, null, s, new NilExp(ileft, iright));
+                         :}
+                     | IF:i LPAREN expr:exp RPAREN error:e stmt:s
+                        {: parser.report_error("Invalid if statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid syntax after ')'.\n", e); 
+                           RESULT = new IfExp(ileft, iright, exp, s, new NilExp(ileft, iright));
+                        :}
+                     | IF:i error:e LPAREN expr:exp RPAREN stmt:s
+                        {: parser.report_error("Invalid if statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid syntax before '('.\n", e); 
+                           RESULT = new IfExp(ileft, iright, exp, s, new NilExp(ileft, iright));
+                        :}
+                     ;
+
+iteration_stmt ::= WHILE:w LPAREN expr:e RPAREN stmt:s 
+                   {: RESULT = new WhileExp(wleft, wright, e, s); :}
+                | WHILE:w LPAREN error:e RPAREN stmt:s
+                   {: parser.report_error("Invalid while statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid conditional statement.\n", e); 
+                      RESULT = new WhileExp(wleft, wright, null, s);
+                   :}
+                | WHILE:w error:e LPAREN expr:exp RPAREN stmt:s
+                   {: parser.report_error("Invalid while statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid syntax before '('.\n", e); 
+                      RESULT = new WhileExp(wleft, wright, exp, s);
+                   :}
+                | WHILE:w LPAREN expr:exp RPAREN error:e stmt:s
+                   {: parser.report_error("Invalid while statement in line " + (eleft + 1) + " at column " + (eright + 1) + " invalid syntax after ')'.\n", e); 
+                      RESULT = new WhileExp(wleft, wright, exp, s);
+                   :}
+                ;
+
+return_stmt    ::= RETURN:r SEMI
+                {: RESULT = new ReturnExp(rleft, rright, new NilExp(rleft, rright)); :}
+             | RETURN:r expr:e SEMI
+                {: RESULT = new ReturnExp(rleft, rright, e); :}
+             | RETURN:r expr:exp error:e SEMI
+                {: parser.report_error("Invalid return expression before ';' in line " + (eleft + 1) + " at column " + (eright + 1) + "\n", e); 
+                   RESULT = new ReturnExp(rleft, rright, exp);
+                :}
+             | RETURN:r error:e SEMI
+                {: parser.report_error("Invalid return expression in line " + (rleft + 1) + " at column " + (rright + 1) + ": missing semicolon.\n", null); 
+                   RESULT = new ReturnExp(rleft, rright, new NilExp(rleft, rright));
+                :}
+             ;
+
+expr                    ::= var:v ASSIGN expr:e      
+                           {:RESULT = new AssignExp(vleft, vright, v, e);:}
+                           | expr:e1 OR expr:e2
+                            {:RESULT = new OpExp(e1left, e1right, e1, OpExp.OR, e2);:}
+                           | expr:e1 AND expr:e2
+                              {:RESULT = new OpExp(e1left, e1right, e1, OpExp.AND, e2);:}
+                           | BITNOT expr:e {:RESULT = e;:}
+                           | expr:e1 LTE expr:e2
+                           {:RESULT = new OpExp(e1left, e1right, e1, OpExp.LTE, e2);:}
+                           | expr:e1 LT expr:e2
+                           {:RESULT = new OpExp(e1left, e1right, e1, OpExp.LT, e2);:}
+                           | expr:e1 GT expr:e2
+                           {:RESULT = new OpExp(e1left, e1right, e1, OpExp.GT, e2);:}
+                           | expr:e1 GTE expr:e2
+                           {:RESULT = new OpExp(e1left, e1right, e1, OpExp.GTE, e2);:}
+                           | expr:e1 EQ expr:e2
+                           {:RESULT = new OpExp(e1left, e1right, e1, OpExp.EQ, e2);:}
+                           | expr:e1 NEQ expr:e2
+                           {:RESULT = new OpExp(e1left, e1right, e1, OpExp.NE, e2);:}
+                           | expr:e1 PLUS expr:e2
+                           {: RESULT = new OpExp(e1left, e1right, e1, OpExp.PLUS, e2); :}
+                           | expr:e1 MINUS expr:e2 
+                           {: RESULT = new OpExp(e1left, e1right, e1, OpExp.MINUS, e2); :}
+                           | expr:e1 TIMES expr:e2 
+                           {: RESULT = new OpExp(e1left, e1right, e1, OpExp.TIMES, e2); :}
+                           | expr:e1 DIVIDE expr:e2 
+                           {: RESULT = new OpExp(e1left, e1right, e1, OpExp.DIV, e2); :}
+                           | MINUS:m expr:e 
+                           {: RESULT = new OpExp(mleft, mright, new NilExp(mleft, mright), OpExp.UMINUS, e); :}
+                           | LPAREN expr:e RPAREN {: RESULT = e; :}
+                           | var:v {:RESULT = v;:} 
+                           | ID:i LPAREN args:a RPAREN  
+                           {:RESULT = new CallExp(ileft,iright, i, a);:}  
+                           | NUM:num {:RESULT = new IntExp(numleft, numright, Integer.parseInt(num)); :}
+                           | TRUTH:t {: RESULT = new BoolExp(tleft, tright, Boolean.parseBoolean(t)); :}
+                            ;
+
+var                     ::= ID:i         
+                              {:RESULT = new VarExp(ileft, iright, new SimpleVar(ileft, iright, i));:}
+                            | ID:i LBRACKET expr:e RBRACKET
+                              {:RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e));:}
+                            ;
+
+args                    ::= arg_list:a    {:RESULT = a;:}
+                           |              {:RESULT = null;:}
+                           ;
+
+arg_list                ::= arg_list:al COMMA expr:e 
+                           {: ExpList t = al;
+                              while( t.tail != null )
+                                 t = t.tail;
+                              t.tail = new ExpList(e, null);
+                              RESULT = al;
+                           :}
+                           | expr:e  {: RESULT = new ExpList(e, null); :}
+                           ;
+
+

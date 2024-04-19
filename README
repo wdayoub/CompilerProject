@@ -1,0 +1,72 @@
+*************************************************
+  Checkpoint 3
+  Student Names: Wisam Dayoub, Sam Engel, Affan Khan
+  Course Name: CIS 4650
+  Due Date: April 4th, 2023
+
+  Based on starter code created by Fei Song
+**************************************************
+
+  To build the parser, type "make" in the current directory, which will 
+generate an executable program called "CM".
+
+  To test source code like "fac.cm", type 
+
+    "java -cp /usr/share/java/cup.jar:. CM fac.cm" 
+
+and the syntax tree will be displayed on the screen.
+
+If you want to save your symbol tree produced by a file like "fac.cm", type:
+
+  "java -cp /usr/share/java/cup.jar:. CM fac.cm -a" 
+
+  You will find an .abs file produced in the same directory.
+
+
+There is also symbol table and type checking functionality, you can activate this by typing:
+
+  "java -cp /usr/share/java/cup.jar:. CM fac.cm -s" 
+  
+  The symbol table will be saved to a file .sym upon completion -- provided there are no semantic errors
+
+
+This time around, we have implemented an assembly-code generator, you can activate this by typing:
+
+  "java -cp /usr/share/java/cup.jar:. CM fac.cm -c" 
+
+  The assembly code will be saved to a .tm file if no errors occur before or during code generation.
+
+  This code can be run on the TMSimulator with the command: "./tm fac.tm"
+  
+  Before this though, you will have to compile the TMSimulator. 
+  This package comes ready with the TMSimulator provided on CourseLink. You can find its instructions in its readme in the TMSimulator directory.
+  
+  
+  We have some additional test files under the directory "tests", named: [0-9].cm
+  
+  To test these files, type:
+  java -cp /usr/share/java/cup.jar:. CM tests/<0-9>.cm -(a,s,c)
+
+  To test any successful compilations, type:
+  ./tm tests/<0-9>.tm
+
+  (compilation quick command: "java -cp /usr/share/java/cup.jar:. CM tests/.cm -c" )
+  (tm quick command: "./tm tests/.tm")
+
+  The files and the errors:
+
+  1-3. no errors 
+  4. Type mismatch on line 8
+  5. lexical error on line 4 beacuse "i nt a;" is not a valid type specifier and syntactic error on line 13, can't be declared after a    statement
+  6. There is an undefined function on line 12 and undefined variable on line 14
+  7. Redefinition error on line 13
+  8. invalid array index on line 19 for passing void call exp fac() as the array index and line 20 should produce an error for incompatible types.
+  9. Line 8 produces invalid type error, line 25 produces return type mismatch
+  0. Line 9 has a lexical error due to the $ sign
+     Line 10 has an error due to the variable missing
+     Line 11 has an error due to initializing and declaring on the same line.    
+     Line 12 has an error due to an invalid conditional statement.
+
+
+
+To rebuild the parser, type "make clean" and type "make" again.

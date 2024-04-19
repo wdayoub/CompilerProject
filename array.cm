@@ -1,0 +1,11 @@
+int lol[10];
+
+void what(int j[]){
+    j[3] = 3;
+    j[10] = 17;
+}
+
+void main(void){
+    lol[1] = 7;
+    what(lol);
+}

@@ -1,0 +1,16 @@
+/* In this function there is an undefined function on line 12 and undefined variable on line 14  */
+
+int add(int x, int y){
+    
+    return x + y;
+} 
+
+void main (void){
+    int x;
+    int y;
+
+    x = sub(10, x);
+
+    g = 2 + y;
+}
+

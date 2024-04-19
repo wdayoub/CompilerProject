@@ -1,0 +1,19 @@
+/*no errors in this test*/
+int soh(void){
+    int x;
+    x = 2;
+    
+    return x;
+}
+
+void main (void){
+    int y;
+    int foo;
+    
+    foo = soh();
+    
+    while (y > 1){
+        foo = foo * y + 1;
+        y = y - 1;
+    }
+}

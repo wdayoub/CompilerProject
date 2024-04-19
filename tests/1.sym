@@ -1,0 +1,11 @@
+The symbol table is:
+Entering the global scope:
+    Entering the scope for function exampleFunction:
+        Entering a new block:
+        Leaving the block
+        result: int
+        num1: int
+        num2: int
+    Leaving the function scope
+    exampleFunction: void function
+Leaving the global scope

@@ -1,0 +1,24 @@
+The abstract syntax tree is:
+ArrayDec: lol
+    NameType: int
+FunctionDec: what
+    NameType: void
+    ArrayDec: j
+        NameType: int
+    CompoundExp:
+        AssignExp:
+            VarExp: 
+                IndexVar: j
+                    IntExp: 3
+            IntExp: 3
+FunctionDec: main
+    NameType: void
+    CompoundExp:
+        AssignExp:
+            VarExp: 
+                IndexVar: lol
+                    IntExp: 1
+            IntExp: 7
+        CallExp: what
+            VarExp: 
+                SimpleVar: lol

@@ -1,0 +1,8 @@
+The symbol table is:
+Entering the global scope:
+    Entering the scope for function funtwo:
+Type Error: One side of the assignment at line 11 is of unknown type.
+        x: int
+    Leaving the function scope
+    funtwo: int function
+Leaving the global scope

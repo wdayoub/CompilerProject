@@ -1,0 +1,9 @@
+/*There is an error type mismatch*/
+void main(void){
+    int x;
+    bool y;
+    
+    x=y;
+    
+    output (5*y);
+}

@@ -1,0 +1,11 @@
+The symbol table is:
+Entering the global scope:
+    Entering the scope for function main:
+        Entering a new block:
+        Leaving the block
+        test: bool
+        x: int
+        fac: int
+    Leaving the function scope
+    main: void function
+Leaving the global scope

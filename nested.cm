@@ -1,0 +1,26 @@
+void main(void){
+    int x;
+    int y;
+    bool what;
+    what = true;
+
+    x = 1;
+    y = 2;
+
+    if (what){
+        int x[10];
+        x[0] = 9;
+        x[9] = 6;
+    }
+
+    x = 3;
+    y = 3;
+
+    if (what){
+        int x;
+        int y;
+        x = 4;
+        y = 4;
+    }
+
+}

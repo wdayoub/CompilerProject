@@ -1,0 +1,64 @@
+The abstract syntax tree is:
+FunctionDec: main
+    NameType: void
+    CompoundExp:
+        SimpleDec: x
+            NameType: int
+        SimpleDec: y
+            NameType: int
+        SimpleDec: what
+            NameType: boolean
+        AssignExp:
+            VarExp: 
+                SimpleVar: what
+            BoolExp: true
+        AssignExp:
+            VarExp: 
+                SimpleVar: x
+            IntExp: 1
+        AssignExp:
+            VarExp: 
+                SimpleVar: y
+            IntExp: 2
+        IfExp:
+            VarExp: 
+                SimpleVar: what
+            CompoundExp:
+                ArrayDec: x
+                    NameType: int
+                AssignExp:
+                    VarExp: 
+                        IndexVar: x
+                            IntExp: 0
+                    IntExp: 9
+                AssignExp:
+                    VarExp: 
+                        IndexVar: x
+                            IntExp: 9
+                    IntExp: 6
+            NilExp
+        AssignExp:
+            VarExp: 
+                SimpleVar: x
+            IntExp: 3
+        AssignExp:
+            VarExp: 
+                SimpleVar: y
+            IntExp: 3
+        IfExp:
+            VarExp: 
+                SimpleVar: what
+            CompoundExp:
+                SimpleDec: x
+                    NameType: int
+                SimpleDec: y
+                    NameType: int
+                AssignExp:
+                    VarExp: 
+                        SimpleVar: x
+                    IntExp: 4
+                AssignExp:
+                    VarExp: 
+                        SimpleVar: y
+                    IntExp: 4
+            NilExp
